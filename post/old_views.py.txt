@@ -1,0 +1,62 @@
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from post.serializers import *
+
+
+class PostListView(APIView):
+    def get(self, request):
+        posts = Post.objects.order_by('-date_modified')
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class PostDetailView(APIView):
+    def get(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        serializer = PostSerializer(post)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class PostCreateView(APIView):
+    def post(self, request):
+        updated_request = request.POST.copy()
+        updated_request.update({'owner': request.user.pk})
+        serializer = PostSerializer(data=updated_request)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PostUpdateView(APIView):
+    def put(self, request, pk):
+        updated_request = Post.objects.get(pk=pk)
+        updated_request.update(request.data.copy())
+        updated_request.update({'owner': request.user.pk})
+        post = Post.objects.get(pk=pk)
+        if post.owner == request.user:
+            serializer = PostSerializer(data=updated_request)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response("forbidden", status=status.HTTP_403_FORBIDDEN)
+
+
+class PostDeleteView(APIView):
+    def delete(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        post.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class PostCommentCreateView(APIView):
+    def post(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        serializer = CommentSerializer(post, data=request.POST)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -1,0 +1,46 @@
+from django.contrib.auth.models import User
+from django.db import models
+from django.core.exceptions import ValidationError
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField(max_length=200)
+
+    def __str__(self):
+        return self.name
+
+
+class Attachment(models.Model):
+    file = models.FileField(upload_to='attachments/')
+
+
+class Post(models.Model):
+    title = models.CharField(max_length=50)
+    content = models.TextField(max_length=1000)
+    banner = models.ImageField(upload_to='banners/', blank=True, null=True)
+    date_posted = models.DateTimeField(auto_now=True)
+    date_modified = models.DateTimeField(auto_now_add=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
+    attachments = models.ManyToManyField(Attachment, blank=True)
+
+    def __str__(self):
+        return self.title
+
+
+class Comment(models.Model):
+    def StarValueValidator(value):
+        if 1 >= value >= 5:
+            raise ValidationError("value must be between 5 and 1")
+        if value % 0.5 != 0:
+            raise ValidationError("value must be divisible by 0.5")
+
+    text = models.TextField()
+    created = models.DateField(auto_now=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    star = models.FloatField(default=5, validators=[StarValueValidator])
+
+    def __str__(self):
+        return f"{self.owner} - {self.post}"
