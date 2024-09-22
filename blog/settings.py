@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-v2vxvq@ai@lp36e-3zxlngd5sv#w%uz&uxpfz73auzic$czn@4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
@@ -35,14 +35,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "corsheaders",
     'rest_framework',
     'rest_framework.authtoken',
-    'corsheaders',
     "user.apps.UserConfig",
     "post.apps.PostConfig"
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -50,8 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-]
+    ]
 
 ROOT_URLCONF = 'blog.urls'
 
@@ -76,11 +76,16 @@ WSGI_APPLICATION = 'blog.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'postgres',
+            'USER': 'root',
+            'PASSWORD': 'KnABQuh7mWTJLTbcgHWJjtbP',
+            'HOST': 'k2.liara.cloud',
+            'PORT': '32123',
+        }
 }
 
 # Password validation
@@ -128,14 +133,15 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # EMAIL_HOST_USER = "sharp_chebyshev_cvkrdn"
 # EMAIL_HOST_PASSWORD = "d2013b77-d96e-4cba-b9c4-abbae02e8ea8"
 # EMAIL_USE_TLS = True
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:4200",
-    "https://localhost:4200",
-    # "https://azizinasim.ir",
-]
+CORS_ALLOW_ALL_ORIGINS=True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
 }
+
+CORS_ALLOWED_ORIGINS=[
+"http://localhost:3000",
+"https://localhost:3000"
+]

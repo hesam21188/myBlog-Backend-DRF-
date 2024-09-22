@@ -50,6 +50,7 @@ class PostListSerializer(serializers.ModelSerializer):
             "image",
             "description",
             "comments",
+            "slug",
         ]
 
     def get_comments(self, obj):
